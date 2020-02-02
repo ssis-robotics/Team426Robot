@@ -11,7 +11,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
-import com.ctre.phoenix.motorcontrol.can.*;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
    
 
-  
+  //Set up the Talons according to the spreadsheet here:  https://docs.google.com/spreadsheets/d/1-l5YZYubWAp52MwDntlmeQ8fC4OWeWa1os5C94XbTL8/edit?usp=sharing
       leftMotorControllerCIM1 = new WPI_TalonSRX(0);
       leftMotorControllerCIM2 = new WPI_TalonSRX(1);
       leftMotorGroup = new SpeedControllerGroup(leftMotorControllerCIM1,leftMotorControllerCIM2);
@@ -54,7 +54,7 @@ public class Robot extends TimedRobot {
       conveyorMotorCIM2 = new WPI_TalonSRX(7);
       conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
 
-
+    //Create a differential drive using the left motor group and right motor groups.
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
       m_myRobot.setRightSideInverted(false);
       gamepad = new Joystick(0);
@@ -66,12 +66,16 @@ public class Robot extends TimedRobot {
     //right joystick currently the one being used
     //we could duplicate the input on the other side too
 
-    m_myRobot.arcadeDrive(gamepad.getY(),-gamepad.getX());
+    //Set the drive motors according to the coordinates of the left joystick
+    m_myRobot.arcadeDrive(gamepad.getY(),gamepad.getX());
 
+    //If button 1 is pressed...
     if(gamepad.getRawButton(1)){
+      //Set the conveyor to full forward
       conveyorMotorGroup.set(1.0);
     }
     else{
+      //...otherwise turn it off.
       conveyorMotorGroup.set(0.0);
     }
     
