@@ -9,8 +9,11 @@ package frc.robot;
 
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.*;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -34,13 +37,19 @@ public class Robot extends TimedRobot {
   private WPI_TalonSRX conveyorMotorCIM2;
   private SpeedControllerGroup conveyorMotorGroup;  
 
+  private Talon leftMotor;
+  private Talon rightMotor;
+  private Talon conveyorMotor;
 
+ 
   @Override
   public void robotInit() {
    
 
   //Set up the Talons according to the spreadsheet here:  https://docs.google.com/spreadsheets/d/1-l5YZYubWAp52MwDntlmeQ8fC4OWeWa1os5C94XbTL8/edit?usp=sharing
-      leftMotorControllerCIM1 = new WPI_TalonSRX(0);
+      
+  if(RobotBase.isReal()){
+    leftMotorControllerCIM1 = new WPI_TalonSRX(0);
       leftMotorControllerCIM2 = new WPI_TalonSRX(1);
       leftMotorGroup = new SpeedControllerGroup(leftMotorControllerCIM1,leftMotorControllerCIM2);
 
@@ -57,7 +66,20 @@ public class Robot extends TimedRobot {
     //Create a differential drive using the left motor group and right motor groups.
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
       m_myRobot.setRightSideInverted(false);
-      gamepad = new Joystick(0);
+  }
+  //If not in a simulation, use regular Talons and no groupings
+  else{
+    leftMotor = new Talon(0);
+    rightMotor = new Talon(2);
+    conveyorMotor = new Talon(6);
+    
+  //Create a simulated differential drive using the left motor and right motors.
+  m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
+
+  }
+      
+      
+  gamepad = new Joystick(0);
  
   }
 
@@ -70,14 +92,30 @@ public class Robot extends TimedRobot {
     m_myRobot.arcadeDrive(gamepad.getY(),gamepad.getX());
 
     //If button 1 is pressed...
-    if(gamepad.getRawButton(1)){
-      //Set the conveyor to full forward
-      conveyorMotorGroup.set(1.0);
+    if(RobotBase.isReal()){
+      if(gamepad.getRawButton(1)){
+        //Set the conveyor to full forward
+        conveyorMotorGroup.set(1.0);
+      }
+      else{
+        //...otherwise turn it off.
+        conveyorMotorGroup.set(0.0);
+      }
+
     }
     else{
-      //...otherwise turn it off.
-      conveyorMotorGroup.set(0.0);
+      if(gamepad.getRawButton(1)){
+        //Set the conveyor to full forward
+        conveyorMotor.set(1.0);
+      }
+      else{
+        //...otherwise turn it off.
+        conveyorMotor.set(0.0);
+      }
+
     }
+    
+    
     
   }
 }
