@@ -15,7 +15,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
@@ -68,7 +68,8 @@ public class Robot extends TimedRobot {
 
     //Set the drive motors according to the coordinates of the left joystick
     m_myRobot.arcadeDrive(gamepad.getY(),gamepad.getX());
-
+    SmartDashboard.putNumber("leftMotor", leftMotorControllerCIM1.get());
+    SmartDashboard.putNumber("rightMotor", rightMotorControllerCIM1.get());
     //If button 1 is pressed...
     if(gamepad.getRawButton(1)){
       //Set the conveyor to full forward
