@@ -75,13 +75,22 @@ public class Robot extends TimedRobot {
     double rightX = gamepad.getX(Hand.kRight);
     
 
-    m_myRobot.arcadeDrive(gamepad.getY(),gamepad.getX());
+    m_myRobot.arcadeDrive(rightY,rightX);
     SmartDashboard.putNumber("leftMotor", leftMotorControllerCIM1.get());
     SmartDashboard.putNumber("rightMotor", rightMotorControllerCIM1.get());
-    //If button 1 is pressed...
-    if(gamepad.getRawButton(1)){
+    //If button X is pressed...
+    if(gamepad.getXButton()){
       //Set the conveyor to full forward
       conveyorMotorGroup.set(1.0);
+    }
+    else{
+      //...otherwise turn it off.
+      conveyorMotorGroup.set(0.0);
+    }
+    //if button B is pressed
+    if(gamepad.getBButton()){
+      //Set the conveyor to full backward
+      conveyorMotorGroup.set(-1.0);
     }
     else{
       //...otherwise turn it off.
