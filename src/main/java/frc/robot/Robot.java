@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+
+
 public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
   private XboxController gamepad;
@@ -67,7 +69,13 @@ public class Robot extends TimedRobot {
   
 
     //Set the drive motors according to the coordinates of the left joystick
-    m_myRobot.arcadeDrive(gamepad.getY(Hand.kRight),gamepad.getX(Hand.kRight));
+    double leftY = gamepad.getY(Hand.kLeft);
+    double leftX = gamepad.getX(Hand.kLeft);
+    double rightY = gamepad.getY(Hand.kRight);
+    double rightX = gamepad.getX(Hand.kRight);
+    
+
+    m_myRobot.arcadeDrive(gamepad.getY(),gamepad.getX());
     SmartDashboard.putNumber("leftMotor", leftMotorControllerCIM1.get());
     SmartDashboard.putNumber("rightMotor", rightMotorControllerCIM1.get());
     //If button 1 is pressed...
@@ -80,6 +88,14 @@ public class Robot extends TimedRobot {
       conveyorMotorGroup.set(0.0);
     }
     
+  }
+  public double abs(double number){
+    if(number > 0){
+      return number;
+    }
+    else{
+      return -number;
+    }
   }
 }
 //on first gamepad:
