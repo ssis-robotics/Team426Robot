@@ -9,6 +9,7 @@ package frc.robot;
 
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -66,7 +67,7 @@ public class Robot extends TimedRobot {
   
 
     //Set the drive motors according to the coordinates of the left joystick
-    m_myRobot.arcadeDrive(gamepad.getY(),gamepad.getX());
+    m_myRobot.arcadeDrive(gamepad.getY(Hand.kRight),gamepad.getX(Hand.kRight));
     SmartDashboard.putNumber("leftMotor", leftMotorControllerCIM1.get());
     SmartDashboard.putNumber("rightMotor", rightMotorControllerCIM1.get());
     //If button 1 is pressed...
