@@ -63,8 +63,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    //right joystick currently the one being used
-    //we could duplicate the input on the other side too
+  
 
     //Set the drive motors according to the coordinates of the left joystick
     m_myRobot.arcadeDrive(gamepad.getY(),gamepad.getX());
@@ -82,3 +81,27 @@ public class Robot extends TimedRobot {
     
   }
 }
+//on first gamepad:
+//left stick is dumper forward, right stick is intake forward
+//right joystick currently the one being used 
+//
+
+//on second gamepad
+
+//left button is full intake, bottom button is full stop, right button is full dump
+///second operator is counting the cells to make sure there aren't more than 5
+
+//top left bumper button arms the color wheel mechanism 
+//bottom left bumper button retracts the color wheel mechanism (use limit switches to control)
+
+//top right bumper button rotates color wheel between 3 - 5 times
+//bottom right bumper button sets color to value from FMS
+//dashboard shows sequence complete to say that stage 1 color wheel is complete
+//read color output from FMS
+//D pad for hanging deploy sequence
+//safety button for deploy
+
+//use rumble feature to show that we are in position against the trench
+
+
+
