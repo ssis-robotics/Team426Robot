@@ -8,7 +8,7 @@
 package frc.robot;
 
 
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
-  private Joystick gamepad;
+  private XboxController gamepad;
 
   
   private WPI_TalonSRX leftMotorControllerCIM1;
@@ -57,7 +57,7 @@ public class Robot extends TimedRobot {
     //Create a differential drive using the left motor group and right motor groups.
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
       m_myRobot.setRightSideInverted(false);
-      gamepad = new Joystick(0);
+      gamepad = new XboxController(0);
  
   }
 
