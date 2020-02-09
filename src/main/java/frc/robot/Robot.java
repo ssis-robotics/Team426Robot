@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -33,10 +35,10 @@ public class Robot extends TimedRobot {
   private SpeedControllerGroup leftMotorGroup;
   private SpeedControllerGroup rightMotorGroup;  
   
-  private WPI_TalonSRX conveyorMotorCIM1;
-  private WPI_TalonSRX conveyorMotorCIM2;
+  private WPI_VictorSPX conveyorMotorCIM1;
+  private WPI_VictorSPX conveyorMotorCIM2;
   private SpeedControllerGroup conveyorMotorGroup;  
-
+  private WPI_VictorSPX colorWheelDrive;
 
   @Override
   public void robotInit() {
@@ -53,9 +55,11 @@ public class Robot extends TimedRobot {
 
       
       leftMotorGroup.setInverted(true);
-      conveyorMotorCIM1 = new WPI_TalonSRX(6);
-      conveyorMotorCIM2 = new WPI_TalonSRX(7);
+      conveyorMotorCIM1 = new WPI_VictorSPX(6);
+      conveyorMotorCIM2 = new WPI_VictorSPX(7);
       conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
+
+      colorWheelDrive = new WPI_VictorSPX(8);
 
     //Create a differential drive using the left motor group and right motor groups.
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
@@ -72,7 +76,7 @@ public class Robot extends TimedRobot {
     double leftY = gamepad.getY(Hand.kLeft);
     double leftX = gamepad.getX(Hand.kLeft);
     double rightY = gamepad.getY(Hand.kRight);
-    double rightX = gamepad.getX(Hand.kRight);
+    double rightX = gamepad.getX(Hand.kRight)*-1;
     
 
     m_myRobot.arcadeDrive(rightY,rightX);
@@ -83,7 +87,7 @@ public class Robot extends TimedRobot {
     if(gamepad.getXButton()){
       //Set the conveyor to full forward
       conveyorMotorGroup.set(1.0);
-    }
+    } 
     else{
       //...otherwise turn it off.
       conveyorMotorGroup.set(0.0);
@@ -98,6 +102,13 @@ public class Robot extends TimedRobot {
       conveyorMotorGroup.set(0.0);
     }
     
+    if (gamepad.getRawButton(6)){
+      colorWheelDrive.set(-1);
+    }
+    else{
+      //...oherwise turn it off.
+      colorWheelDrive.set(0.0);
+    }
   }
   public double abs(double number){
     if(number > 0){
