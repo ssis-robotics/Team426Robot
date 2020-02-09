@@ -88,10 +88,7 @@ public class Robot extends TimedRobot {
       //Set the conveyor to full forward
       conveyorMotorGroup.set(1.0);
     } 
-    else{
-      //...otherwise turn it off.
-      conveyorMotorGroup.set(0.0);
-    }
+    else
     //if button B is pressed
     if(gamepad.getBButton()){
       //Set the conveyor to full backward
