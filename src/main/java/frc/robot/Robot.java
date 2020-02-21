@@ -24,7 +24,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
-  private XboxController gamepad;
+  //Define controllers. 
+  private XboxController gamepadDrive;
+  private XboxController gamepadOperator;
 
   
   private WPI_TalonSRX leftMotorControllerCIM1;
@@ -64,7 +66,8 @@ public class Robot extends TimedRobot {
     //Create a differential drive using the left motor group and right motor groups.
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
       m_myRobot.setRightSideInverted(false);
-      gamepad = new XboxController(0);
+      gamepadDrive = new XboxController(0);
+      gamepadOperator = new XboxController(1);
  
   }
 
@@ -72,25 +75,27 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
   
 
-    //Set the drive motors according to the coordinates of the left joystick
-    double leftY = gamepad.getY(Hand.kLeft);
-    double leftX = gamepad.getX(Hand.kLeft);
-    double rightY = gamepad.getY(Hand.kRight);
-    double rightX = gamepad.getX(Hand.kRight)*-1;
+    //Set the drive motors according to the coordinates of the left joystick on the drive controller
+    double leftY = gamepadDrive.getY(Hand.kLeft);
+    double leftX = gamepadDrive.getX(Hand.kLeft);
+    double rightY = gamepadDrive.getY(Hand.kRight);
+    double rightX = gamepadDrive.getX(Hand.kRight)*-1;
     
 
     m_myRobot.arcadeDrive(rightY,rightX);
+
+    //This line sends things to the smart dashboard. We can use this to get any information we might want from the system.
     SmartDashboard.putNumber("leftMotor", leftMotorControllerCIM1.get());
     SmartDashboard.putNumber("rightMotor", rightMotorControllerCIM1.get());
     SmartDashboard.putNumber("conveyorMotor", conveyorMotorCIM1.get());
-    //If button X is pressed...
-    if(gamepad.getXButton()){
+    //If button X is pressed on the operator control...
+    if(gamepadOperator.getXButton()){
       //Set the conveyor to full forward
       conveyorMotorGroup.set(1.0);
     } 
     else
     //if button B is pressed
-    if(gamepad.getBButton()){
+    if(gamepadOperator.getBButton()){
       //Set the conveyor to full backward
       conveyorMotorGroup.set(-1.0);
     }
@@ -99,7 +104,7 @@ public class Robot extends TimedRobot {
       conveyorMotorGroup.set(0.0);
     }
     
-    if (gamepad.getRawButton(6)){
+    if (gamepadOperator.getRawButton(6)){
       colorWheelDrive.set(-1);
     }
     else{
