@@ -52,8 +52,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
    
-
-  //Set up the motor controllers according to the spreadsheet here:  https://docs.google.com/spreadsheets/d/1-l5YZYubWAp52MwDntlmeQ8fC4OWeWa1os5C94XbTL8/edit?usp=sharing
+//The system inputs/outputs are arranged according to the spreadsheet here:  https://docs.google.com/spreadsheets/d/1-l5YZYubWAp52MwDntlmeQ8fC4OWeWa1os5C94XbTL8/edit?usp=sharing
+//Set up the drive motor controllers 
       leftMotorControllerCIM1 = new WPI_TalonSRX(0);
       leftMotorControllerCIM2 = new WPI_TalonSRX(1);
       leftMotorGroup = new SpeedControllerGroup(leftMotorControllerCIM1,leftMotorControllerCIM2);
@@ -62,25 +62,27 @@ public class Robot extends TimedRobot {
       rightMotorControllerCIM2 = new WPI_TalonSRX(3);
       rightMotorGroup = new SpeedControllerGroup(rightMotorControllerCIM1,rightMotorControllerCIM2);
 
-      
-      leftMotorGroup.setInverted(true);
+//Create a differential drive system using the left and right motor groups
+      m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
+      m_myRobot.setRightSideInverted(false);
 
+//Set up the two Xbox controllers. The drive is for driving, the operator is for all conveyor and color wheel controls
+      gamepadDrive = new XboxController(0);
+      gamepadOperator = new XboxController(1);
+ 
+      leftMotorGroup.setInverted(true);
+//Set up conveyor motor controllers
       conveyorMotorCIM1 = new WPI_VictorSPX(6);
       conveyorMotorCIM2 = new WPI_VictorSPX(7);
       conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
 
+//Set up the color wheel system motor controllers
       colorWheelDrive = new WPI_VictorSPX(8);
-      colorWheelArm = new WPI_VictorSPX(9);
+      colorWheelArm = new WPI_VictorSPX(9);     
 
-    //Create a differential drive using the left motor group and right motor groups.
-      m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
-      m_myRobot.setRightSideInverted(false);
-      gamepadDrive = new XboxController(0);
-      gamepadOperator = new XboxController(1);
- 
-
-      colorWheelArmLowerLimit = new DigitalInput(0);
-      colorWheelArmUpperLimit = new DigitalInput(1);
+//Set up the color wheel arm limit switches
+      colorWheelArmLowerLimit = new DigitalInput(4);
+      colorWheelArmUpperLimit = new DigitalInput(5);
   }
 
   @Override
