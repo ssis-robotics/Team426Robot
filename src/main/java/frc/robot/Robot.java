@@ -147,7 +147,10 @@ public class Robot extends TimedRobot {
 //**********COLOR WHEEL ARM CONTROL**********//
 //top left bumper button arms the color wheel mechanism 
 //bottom left trigger button retracts the color wheel mechanism (use limit switches to control)
-
+    //lower position, lower limit switch is pressed
+    //upper position, both are pressed
+    
+    
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
     if (gamepadOperator.getBumper(Hand.kLeft)){
       //Check if colorWheelArmUpperLimit switch is not pressed before running motor
