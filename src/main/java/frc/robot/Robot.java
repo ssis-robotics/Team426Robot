@@ -98,7 +98,7 @@ public class Robot extends TimedRobot {
   //Set the drive motors according to the coordinates of the right joystick on the drive controller
     
     double leftY = gamepadDrive.getY(Hand.kLeft);
-    double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
+    double rightX = gamepadDrive.getX(Hand.kRight)*-0.5;
     
 
     m_myRobot.arcadeDrive(leftY,rightX);
