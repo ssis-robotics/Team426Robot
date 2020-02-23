@@ -117,13 +117,13 @@ public class Robot extends TimedRobot {
 //If button X is pressed on the operator control...
     if(gamepadOperator.getXButton()){
       //Set the conveyor to full forward
-      conveyorMotorGroup.set(1.0);
+      conveyorMotorGroup.set(0.75);
     } 
     else
     //if button B is pressed
     if(gamepadOperator.getBButton()){
       //Set the conveyor to full backward
-      conveyorMotorGroup.set(-1.0);
+      conveyorMotorGroup.set(-0.75);
     }
     else{
       //...otherwise turn it off.
@@ -149,18 +149,18 @@ public class Robot extends TimedRobot {
 //bottom left trigger button retracts the color wheel mechanism (use limit switches to control)
 
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
-    if (gamepadOperator.getBumper(Hand.kLeft)){
+    if (gamepadOperator.getRawButton(5)){
       //Check if colorWheelArmUpperLimit switch is not pressed before running motor
-      if(!colorWheelArmUpperLimit.get()) {
+      if(colorWheelArmUpperLimit.get()) {
         colorWheelArm.set(.5);
     } else {
       colorWheelArm.set(0);
       }
     }
 
-    if (gamepadOperator.getRawButton(2)){
+    else if (gamepadOperator.getRawAxis(2)>0.75){
       //Check if colorWheelArmLowerLimit switch is not pressed before running motor
-      if(!colorWheelArmLowerLimit.get()) {
+      if(colorWheelArmLowerLimit.get()) {
         colorWheelArm.set(-.5);
     } else {
       colorWheelArm.set(0);
