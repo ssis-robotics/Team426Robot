@@ -48,6 +48,10 @@ public class Robot extends TimedRobot {
   private WPI_VictorSPX colorWheelDrive;
   private WPI_VictorSPX colorWheelArm;
 
+  private int moveColorWheelUpDown = 1;
+  private int colorWheelState = 1;
+  private Boolean lastPressed = true;
+
 
   //private ColorWheelSystem colorWheelSystem;
 
@@ -83,8 +87,8 @@ public class Robot extends TimedRobot {
       colorWheelArm = new WPI_VictorSPX(9);     
 
 //Set up the color wheel arm limit switches
-      colorWheelArmLowerLimit = new DigitalInput(4);
-      colorWheelArmUpperLimit = new DigitalInput(5);
+      colorWheelArmLowerLimit = new DigitalInput(5);
+      colorWheelArmUpperLimit = new DigitalInput(4);
   }
 
   @Override
@@ -109,6 +113,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("colorWheelDrive", colorWheelDrive.get());
     SmartDashboard.putBoolean("colorWheelArmUpperLimit", colorWheelArmLowerLimit.get());
     SmartDashboard.putBoolean("colorWheelArmLowerLimit", colorWheelArmUpperLimit.get());
+    SmartDashboard.putNumber("colorWheelMoveUpDown", moveColorWheelUpDown);
 
 
 //**********CONVEYOR CONTROL**********//
@@ -148,22 +153,36 @@ public class Robot extends TimedRobot {
 //top left bumper button arms the color wheel mechanism 
 //bottom left trigger button retracts the color wheel mechanism (use limit switches to control)
 
+    //moveColorWheelUpDown == 1: move color wheel manipulator down
+    //moveColorWheelUpDown == 2: move color wheel manipulator up
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
-    if (gamepadOperator.getRawButton(5)){
-      //Check if colorWheelArmUpperLimit switch is not pressed before running motor
-      if(colorWheelArmUpperLimit.get()) {
-        colorWheelArm.set(.5);
-    } else {
-      colorWheelArm.set(0);
-      }
+    if (gamepadOperator.getRawAxis(2)>0.5){
+      moveColorWheelUpDown = 1;
+    } else if (gamepadOperator.getRawButton(5)){
+      moveColorWheelUpDown = 2;
+    }
+    
+    if(lastPressed && colorWheelArmLowerLimit.get()) {
+      lastPressed = !colorWheelArmLowerLimit.get();
     }
 
-    else if (gamepadOperator.getRawAxis(2)>0.75){
+    if(moveColorWheelUpDown == 1) {
       //Check if colorWheelArmLowerLimit switch is not pressed before running motor
-      if(colorWheelArmLowerLimit.get()) {
+      if(lastPressed && colorWheelState == 2) {
         colorWheelArm.set(-.5);
-    } else {
-      colorWheelArm.set(0);
+      } else if(!colorWheelArmLowerLimit.get()) {
+        colorWheelArm.set(0);
+        lastPressed = true;
+        colorWheelState = 1;
+      }
+    } else if(moveColorWheelUpDown == 2) {
+      //Check if colorWheelArmUpperLimit switch is not pressed before running motor
+      if(lastPressed && colorWheelState == 1) {
+        colorWheelArm.set(.5);
+      } else if (!colorWheelArmLowerLimit.get()){
+        colorWheelArm.set(0);
+        lastPressed = true;
+        colorWheelState = 2;
       }
     }
 
