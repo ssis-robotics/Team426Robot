@@ -8,13 +8,8 @@
 package frc.robot;
 
 
-<<<<<<< HEAD
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.RobotBase;
-=======
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
->>>>>>> master
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.*;
 
@@ -34,52 +29,42 @@ public class Robot extends TimedRobot {
 
   private final Timer m_timer = new Timer();
 
-  //Define controllers. 
+  //Define controllers.
   private XboxController gamepadDrive;
   private XboxController gamepadOperator;
 
-  
+
   private WPI_TalonSRX leftMotorControllerCIM1;
   private WPI_TalonSRX leftMotorControllerCIM2;
   private WPI_TalonSRX rightMotorControllerCIM1;
   private WPI_TalonSRX rightMotorControllerCIM2;
 
   private SpeedControllerGroup leftMotorGroup;
-  private SpeedControllerGroup rightMotorGroup;  
-  
+  private SpeedControllerGroup rightMotorGroup;
+
   private WPI_VictorSPX conveyorMotorCIM1;
   private WPI_VictorSPX conveyorMotorCIM2;
-  private SpeedControllerGroup conveyorMotorGroup;  
+  private SpeedControllerGroup conveyorMotorGroup;
 
-<<<<<<< HEAD
-  private Talon leftMotor;
-  private Talon rightMotor;
-  private Talon conveyorMotor;
-=======
   private DigitalInput colorWheelArmLowerLimit;
   private DigitalInput colorWheelArmUpperLimit;
   private WPI_VictorSPX colorWheelDrive;
   private WPI_VictorSPX colorWheelArm;
 
+  private int moveColorWheelUpDown = 1;
+  private int colorWheelState = 1;
+  private Boolean lastPressed = true;
+
 
   //private ColorWheelSystem colorWheelSystem;
->>>>>>> master
 
- 
+
   @Override
   public void robotInit() {
-   
-<<<<<<< HEAD
 
-  //Set up the Talons according to the spreadsheet here:  https://docs.google.com/spreadsheets/d/1-l5YZYubWAp52MwDntlmeQ8fC4OWeWa1os5C94XbTL8/edit?usp=sharing
-      
-  if(RobotBase.isReal()){
-    leftMotorControllerCIM1 = new WPI_TalonSRX(0);
-=======
 //The system inputs/outputs are arranged according to the spreadsheet here:  https://docs.google.com/spreadsheets/d/1-l5YZYubWAp52MwDntlmeQ8fC4OWeWa1os5C94XbTL8/edit?usp=sharing
-//Set up the drive motor controllers 
+//Set up the drive motor controllers
       leftMotorControllerCIM1 = new WPI_TalonSRX(0);
->>>>>>> master
       leftMotorControllerCIM2 = new WPI_TalonSRX(1);
       leftMotorGroup = new SpeedControllerGroup(leftMotorControllerCIM1,leftMotorControllerCIM2);
 
@@ -90,28 +75,11 @@ public class Robot extends TimedRobot {
 //Create a differential drive system using the left and right motor groups
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
       m_myRobot.setRightSideInverted(false);
-<<<<<<< HEAD
-  }
-  //If not in a simulation, use regular Talons and no groupings
-  else{
-    leftMotor = new Talon(0);
-    rightMotor = new Talon(2);
-    conveyorMotor = new Talon(6);
-    
-  //Create a simulated differential drive using the left motor and right motors.
-  m_myRobot = new DifferentialDrive(leftMotor, rightMotor);
-
-  }
-      
-      
-  gamepad = new Joystick(0);
-=======
 
 //Set up the two Xbox controllers. The drive is for driving, the operator is for all conveyor and color wheel controls
       gamepadDrive = new XboxController(0);
       gamepadOperator = new XboxController(1);
->>>>>>> master
- 
+
       leftMotorGroup.setInverted(true);
 //Set up conveyor motor controllers
       conveyorMotorCIM1 = new WPI_VictorSPX(6);
@@ -120,23 +88,23 @@ public class Robot extends TimedRobot {
 
 //Set up the color wheel system motor controllers
       colorWheelDrive = new WPI_VictorSPX(8);
-      colorWheelArm = new WPI_VictorSPX(9);     
+      colorWheelArm = new WPI_VictorSPX(9);
 
 //Set up the color wheel arm limit switches
-      colorWheelArmLowerLimit = new DigitalInput(4);
-      colorWheelArmUpperLimit = new DigitalInput(5);
+      colorWheelArmLowerLimit = new DigitalInput(5);
+      colorWheelArmUpperLimit = new DigitalInput(4);
   }
 
   @Override
   public void teleopPeriodic() {
-  
+
   //**********DRIVE CONTROL**********//
   //Set the drive motors according to the coordinates of the right joystick on the drive controller
-    
+
 
     double leftY = gamepadDrive.getY(Hand.kLeft);
     double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
-    
+
 
     m_myRobot.arcadeDrive(leftY,rightX);
 
@@ -151,35 +119,24 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("colorWheelDrive", colorWheelDrive.get());
     SmartDashboard.putBoolean("colorWheelArmUpperLimit", colorWheelArmLowerLimit.get());
     SmartDashboard.putBoolean("colorWheelArmLowerLimit", colorWheelArmUpperLimit.get());
+    SmartDashboard.putNumber("colorWheelMoveUpDown", moveColorWheelUpDown);
 
 
 //**********CONVEYOR CONTROL**********//
 
-<<<<<<< HEAD
-    //If button 1 is pressed...
-    if(RobotBase.isReal()){
-      if(gamepad.getRawButton(1)){
-        //Set the conveyor to full forward
-        conveyorMotorGroup.set(1.0);
-      }
-      else{
-        //...otherwise turn it off.
-        conveyorMotorGroup.set(0.0);
-      }
-
-=======
 //left button is full intake, bottom button is full stop, right button is full dump
 //If button X is pressed on the operator control...
     if(gamepadOperator.getXButton()){
       //Set the conveyor to full forward
-      conveyorMotorGroup.set(1.0);
-    } 
+      conveyorMotorGroup.set(0.75);
+    }
     else
     //if button B is pressed
     if(gamepadOperator.getBButton()){
       //Set the conveyor to full backward
-      conveyorMotorGroup.set(-1.0);
->>>>>>> master
+
+      conveyorMotorGroup.set(-0.75);
+
     }
     else{
       if(gamepad.getRawButton(1)){
@@ -192,11 +149,7 @@ public class Robot extends TimedRobot {
       }
 
     }
-    
-<<<<<<< HEAD
-    
-    
-=======
+
 
 
 //**********COLOR WHEEL ROTATION CONTROL**********//
@@ -212,26 +165,40 @@ public class Robot extends TimedRobot {
 
 
 //**********COLOR WHEEL ARM CONTROL**********//
-//top left bumper button arms the color wheel mechanism 
+//top left bumper button arms the color wheel mechanism
 //bottom left trigger button retracts the color wheel mechanism (use limit switches to control)
 
+    //moveColorWheelUpDown == 1: move color wheel manipulator down
+    //moveColorWheelUpDown == 2: move color wheel manipulator up
 
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
-    if (gamepadOperator.getBumper(Hand.kLeft)){
-      //Check if colorWheelArmUpperLimit switch is not pressed before running motor
-      if(!colorWheelArmUpperLimit.get()) {
-        colorWheelArm.set(.5);
-    } else {
-      colorWheelArm.set(0);
-      }
+    if (gamepadOperator.getRawAxis(2)>0.5){
+      moveColorWheelUpDown = 1;
+    } else if (gamepadOperator.getRawButton(5)){
+      moveColorWheelUpDown = 2;
     }
 
-    if (gamepadOperator.getRawButton(2)){
+    if(lastPressed && colorWheelArmLowerLimit.get()) {
+      lastPressed = !colorWheelArmLowerLimit.get();
+    }
+
+    if(moveColorWheelUpDown == 1) {
       //Check if colorWheelArmLowerLimit switch is not pressed before running motor
-      if(!colorWheelArmLowerLimit.get()) {
+      if(lastPressed && colorWheelState == 2) {
         colorWheelArm.set(-.5);
-    } else {
-      colorWheelArm.set(0);
+      } else if(!colorWheelArmLowerLimit.get()) {
+        colorWheelArm.set(0);
+        lastPressed = true;
+        colorWheelState = 1;
+      }
+    } else if(moveColorWheelUpDown == 2) {
+      //Check if colorWheelArmUpperLimit switch is not pressed before running motor
+      if(lastPressed && colorWheelState == 1) {
+        colorWheelArm.set(.5);
+      } else if (!colorWheelArmLowerLimit.get()){
+        colorWheelArm.set(0);
+        lastPressed = true;
+        colorWheelState = 2;
       }
     }
 
@@ -268,14 +235,13 @@ public class Robot extends TimedRobot {
     else{
       return -number;
     }
->>>>>>> master
   }
 }
 
 
 //on first gamepad:
 //left stick is dumper forward, right stick is intake forward
-//right joystick currently the one being used 
+//right joystick currently the one being used
 //
 
 
