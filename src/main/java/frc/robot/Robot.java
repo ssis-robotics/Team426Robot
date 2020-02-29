@@ -26,6 +26,7 @@ public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
 
   private final Timer m_timer = new Timer();
+
   //Define controllers. 
   private XboxController gamepadDrive;
   private XboxController gamepadOperator;
@@ -97,11 +98,13 @@ public class Robot extends TimedRobot {
   //**********DRIVE CONTROL**********//
   //Set the drive motors according to the coordinates of the right joystick on the drive controller
     
+
     double leftY = gamepadDrive.getY(Hand.kLeft);
     double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
     
 
     m_myRobot.arcadeDrive(leftY,rightX);
+
 
 
 //**********SMART DASHBOARD CONTROL**********//
@@ -155,6 +158,7 @@ public class Robot extends TimedRobot {
 
     //moveColorWheelUpDown == 1: move color wheel manipulator down
     //moveColorWheelUpDown == 2: move color wheel manipulator up
+
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
     if (gamepadOperator.getRawAxis(2)>0.5){
       moveColorWheelUpDown = 1;
@@ -187,6 +191,7 @@ public class Robot extends TimedRobot {
     }
 
 
+
   }
    /**
    * This function is run once each time the robot enters autonomous mode.
@@ -208,6 +213,7 @@ public class Robot extends TimedRobot {
     } else {
       m_myRobot.stopMotor(); // stop robot
     }
+
   }
 
   public double abs(double number){
