@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 
+
 public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
 
@@ -54,7 +55,9 @@ public class Robot extends TimedRobot {
   private int moveColorWheelUpDown = 1;
   private int colorWheelState = 1;
   private Boolean lastPressed = true;
-
+  private Boolean operatorGamepadLeftTriggerPressed = false;
+  private String colorWheelPosition = "DOWN";
+   
 
   //private ColorWheelSystem colorWheelSystem;
 
@@ -119,7 +122,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("colorWheelDrive", colorWheelDrive.get());
     SmartDashboard.putBoolean("colorWheelArmUpperLimit", colorWheelArmLowerLimit.get());
     SmartDashboard.putBoolean("colorWheelArmLowerLimit", colorWheelArmUpperLimit.get());
-    SmartDashboard.putNumber("colorWheelMoveUpDown", moveColorWheelUpDown);
+
+    
+    SmartDashboard.putString("colorWheelPosition", colorWheelPosition);
 
 
 //**********CONVEYOR CONTROL**********//
@@ -139,14 +144,8 @@ public class Robot extends TimedRobot {
 
     }
     else{
-      if(gamepad.getRawButton(1)){
-        //Set the conveyor to full forward
-        conveyorMotor.set(1.0);
-      }
-      else{
-        //...otherwise turn it off.
-        conveyorMotor.set(0.0);
-      }
+      conveyorMotorGroup.set(0.0);
+      
 
     }
 
@@ -172,9 +171,19 @@ public class Robot extends TimedRobot {
     //moveColorWheelUpDown == 2: move color wheel manipulator up
 
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
+  
+
+    //Set the left trigger on the operator gamepad to act like the left bumper using a boolean variable.
     if (gamepadOperator.getRawAxis(2)>0.5){
+     operatorGamepadLeftTriggerPressed = true;
+    } else{
+      operatorGamepadLeftTriggerPressed = false;
+    }
+
+    //Now set the color wheel arm state using either the left bumper or the left trigger.
+    if (operatorGamepadLeftTriggerPressed){
       moveColorWheelUpDown = 1;
-    } else if (gamepadOperator.getRawButton(5)){
+    } else if (gamepadOperator.getBumperPressed(Hand.kLeft)){
       moveColorWheelUpDown = 2;
     }
 
@@ -186,21 +195,27 @@ public class Robot extends TimedRobot {
       //Check if colorWheelArmLowerLimit switch is not pressed before running motor
       if(lastPressed && colorWheelState == 2) {
         colorWheelArm.set(-.5);
+        colorWheelPosition = "MOVING DOWN";
       } else if(!colorWheelArmLowerLimit.get()) {
         colorWheelArm.set(0);
         lastPressed = true;
         colorWheelState = 1;
+        colorWheelPosition = "DOWN";
       }
     } else if(moveColorWheelUpDown == 2) {
       //Check if colorWheelArmUpperLimit switch is not pressed before running motor
       if(lastPressed && colorWheelState == 1) {
         colorWheelArm.set(.5);
+        colorWheelPosition = "MOVING UP";
       } else if (!colorWheelArmLowerLimit.get()){
         colorWheelArm.set(0);
         lastPressed = true;
         colorWheelState = 2;
+        colorWheelPosition = "UP";
       }
     }
+
+  
 
 
 
