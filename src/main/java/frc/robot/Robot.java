@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
+
+  private final Timer m_timer = new Timer();
+
   //Define controllers. 
   private XboxController gamepadDrive;
   private XboxController gamepadOperator;
@@ -91,11 +94,13 @@ public class Robot extends TimedRobot {
   //**********DRIVE CONTROL**********//
   //Set the drive motors according to the coordinates of the right joystick on the drive controller
     
-    double rightY = gamepadDrive.getY(Hand.kRight);
-    double rightX = gamepadDrive.getX(Hand.kRight)*-1;
+
+    double leftY = gamepadDrive.getY(Hand.kLeft);
+    double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
     
 
-    m_myRobot.arcadeDrive(rightY,rightX);
+    m_myRobot.arcadeDrive(leftY,rightX);
+
 
 
 //**********SMART DASHBOARD CONTROL**********//
@@ -146,6 +151,7 @@ public class Robot extends TimedRobot {
 //top left bumper button arms the color wheel mechanism 
 //bottom left trigger button retracts the color wheel mechanism (use limit switches to control)
 
+
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
     if (gamepadOperator.getBumper(Hand.kLeft)){
       //Check if colorWheelArmUpperLimit switch is not pressed before running motor
@@ -165,6 +171,29 @@ public class Robot extends TimedRobot {
       }
     }
 
+
+
+  }
+   /**
+   * This function is run once each time the robot enters autonomous mode.
+   */
+  @Override
+  public void autonomousInit() {
+    m_timer.reset();
+    m_timer.start();
+  }
+
+  /**
+   * This function is called periodically during autonomous.
+   */
+  @Override
+  public void autonomousPeriodic() {
+    // Drive for 2 seconds
+    if (m_timer.get() < 2.0) {
+      m_myRobot.arcadeDrive(0.5, 0.0); // drive forwards half speed
+    } else {
+      m_myRobot.stopMotor(); // stop robot
+    }
 
   }
 
@@ -197,6 +226,3 @@ public class Robot extends TimedRobot {
 //safety button for deploy
 
 //use rumble feature to show that we are in position against the trench
-
-
-
