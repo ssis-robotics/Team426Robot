@@ -251,6 +251,15 @@ private int numberOfColorChanges = 0;
       lastPressed = !colorWheelArmLowerLimit.get();
     }
 
+    //Feel free to comment this out if it doesn't fix the problem.
+    //Get the raw readings from the color sensor
+    detectedColor = m_colorSensor.getColor();
+
+    //Try to match the color sensor reading to get the actual colorWheelState
+    colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
+   
+    
+   
     if(moveColorWheelUpDown == 1) {
       //Check if colorWheelArmLowerLimit switch is not pressed before running motor
       if(lastPressed && colorWheelState == 2) {
@@ -259,7 +268,13 @@ private int numberOfColorChanges = 0;
       } else if(!colorWheelArmLowerLimit.get()) {
         colorWheelArm.set(0);
         lastPressed = true;
-        colorWheelState = 1;
+        if(colorMatch == 'Red'){
+          colorWheelState = 1
+        }
+        else{
+          colorWheelState = 2
+        }
+        //colorWheelState = 1;
         colorWheelPosition = "DOWN";
       }
     } else if(moveColorWheelUpDown == 2) {
@@ -270,12 +285,18 @@ private int numberOfColorChanges = 0;
       } else if (!colorWheelArmLowerLimit.get()){
         colorWheelArm.set(0);
         lastPressed = true;
-        colorWheelState = 2;
+        if(colorMatch == 'Red'){
+          colorWheelState = 1
+        }
+        else{
+          colorWheelState = 2
+        }
+        //colorWheelState = 2;
         colorWheelPosition = "UP";
       }
     }
 
-  
+
   //**********COLOR SENSOR **********//
 
   //Get the raw readings from the color sensor
