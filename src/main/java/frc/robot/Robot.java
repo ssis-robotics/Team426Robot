@@ -43,6 +43,7 @@ public class Robot extends TimedRobot {
   private WPI_TalonSRX leftMotorControllerCIM2;
   private WPI_TalonSRX rightMotorControllerCIM1;
   private WPI_TalonSRX rightMotorControllerCIM2;
+  
 
   private SpeedControllerGroup leftMotorGroup;
   private SpeedControllerGroup rightMotorGroup;
@@ -50,6 +51,10 @@ public class Robot extends TimedRobot {
   private WPI_VictorSPX conveyorMotorCIM1;
   private WPI_VictorSPX conveyorMotorCIM2;
   private SpeedControllerGroup conveyorMotorGroup;
+
+  private WPI_TalonSRX climbMotorCIM1;
+  private WPI_TalonSRX climbMotorCIM2;
+  private SpeedControllerGroup climbMotorGroup;
 
   private DigitalInput colorWheelArmLowerLimit;
   private DigitalInput colorWheelArmUpperLimit;
@@ -62,6 +67,9 @@ public class Robot extends TimedRobot {
   private Boolean operatorGamepadLeftTriggerPressed = false;
   private String colorWheelPosition = "DOWN";
   
+  //variable for arming the climb system
+  private Boolean climbMotorEnabled = false;
+
   //Add color sensor through the onboard I2C port
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
@@ -115,6 +123,11 @@ private int numberOfColorChanges = 0;
       conveyorMotorCIM2 = new WPI_VictorSPX(7);
       conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
 
+//Set up climb motor controllers
+      climbMotorCIM1 = new WPI_TalonSRX(10);
+      climbMotorCIM2 = new WPI_TalonSRX(11);
+      climbMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
+
 //Set up the color wheel system motor controllers
       colorWheelDrive = new WPI_VictorSPX(8);
       colorWheelArm = new WPI_VictorSPX(9);
@@ -128,6 +141,11 @@ private int numberOfColorChanges = 0;
       m_colorMatcher.addColorMatch(kGreen);
       m_colorMatcher.addColorMatch(kRed);
       m_colorMatcher.addColorMatch(kYellow);
+
+
+//Set up the color wheel system motor controllers
+      colorWheelDrive = new WPI_VictorSPX(8);
+      colorWheelArm = new WPI_VictorSPX(9);
   }
 
   @Override
@@ -150,6 +168,8 @@ private int numberOfColorChanges = 0;
     SmartDashboard.putNumber("leftMotor", leftMotorControllerCIM1.get());
     SmartDashboard.putNumber("rightMotor", rightMotorControllerCIM1.get());
     SmartDashboard.putNumber("conveyorMotor", conveyorMotorCIM1.get());
+    SmartDashboard.putNumber("climbMotor", climbMotorCIM1.get());
+    SmartDashboard.putBoolean("climbMotorEnabled",climbMotorEnabled);
 
     //Show color wheel information
     SmartDashboard.putNumber("colorWheelArm", colorWheelArm.get());
@@ -231,6 +251,15 @@ private int numberOfColorChanges = 0;
       lastPressed = !colorWheelArmLowerLimit.get();
     }
 
+    //Feel free to comment this out if it doesn't fix the problem.
+    //Get the raw readings from the color sensor
+    detectedColor = m_colorSensor.getColor();
+
+    //Try to match the color sensor reading to get the actual colorWheelState
+    colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
+   
+    
+   
     if(moveColorWheelUpDown == 1) {
       //Check if colorWheelArmLowerLimit switch is not pressed before running motor
       if(lastPressed && colorWheelState == 2) {
@@ -239,7 +268,13 @@ private int numberOfColorChanges = 0;
       } else if(!colorWheelArmLowerLimit.get()) {
         colorWheelArm.set(0);
         lastPressed = true;
-        colorWheelState = 1;
+        if(colorMatch == 'Red'){
+          colorWheelState = 1
+        }
+        else{
+          colorWheelState = 2
+        }
+        //colorWheelState = 1;
         colorWheelPosition = "DOWN";
       }
     } else if(moveColorWheelUpDown == 2) {
@@ -250,12 +285,18 @@ private int numberOfColorChanges = 0;
       } else if (!colorWheelArmLowerLimit.get()){
         colorWheelArm.set(0);
         lastPressed = true;
-        colorWheelState = 2;
+        if(colorMatch == 'Red'){
+          colorWheelState = 1
+        }
+        else{
+          colorWheelState = 2
+        }
+        //colorWheelState = 2;
         colorWheelPosition = "UP";
       }
     }
 
-  
+
   //**********COLOR SENSOR **********//
 
   //Get the raw readings from the color sensor
@@ -303,6 +344,41 @@ private int numberOfColorChanges = 0;
   if(gamepadOperator.getStartButtonPressed()){
     numberOfColorChanges = 0;
   }
+
+  //**********CLIMB MOTOR CONTROL**********//
+
+//If the drive gamepad A button is pressed, this arms or disarms the climb mechanism.
+
+if (gamepadDrive.getAButtonPressed()){
+  if(climbMotorEnabled){
+    climbMotorEnabled = false;
+  }
+  else{
+    climbMotorEnabled = true;
+  }
+}
+
+//These functions will only be active if the climbMotorEnabled variable is true:
+if(climbMotorEnabled){
+  //If operator A button is pressed, set the climbMotorGroup to be on forward
+  if (gamepadOperator.getAButton()){
+    climbMotorGroup.set(1.0);
+  }
+  else{
+    //...otherwise turn it off.
+    climbMotorGroup.set(0.0);
+  }
+  //If operator AYbutton is pressed, set the climbMotorGroup to be on backward
+  if(gamepadOperator.getYButton()){
+    climbMotorGroup.set(-1.0);
+  }
+  else{
+    climbMotorGroup.set(0.0);
+  }
+
+}
+
+
 
 } //End of robotPeriodicTeleop
 
