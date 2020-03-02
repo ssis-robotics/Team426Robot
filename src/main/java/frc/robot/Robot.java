@@ -82,7 +82,7 @@ private int numberOfColorChanges = 0;
   private final Color kRed = ColorMatch.makeColor(0.561,0.232,0.114);
   private final Color kYellow = ColorMatch.makeColor(0.361,0.524,0.113);
 
-  private int kColorChangesForStageTwo = 25;
+  private int kColorChangesForStageTwo = 32;
   private boolean stageTwoComplete = false;
 
   //private ColorWheelSystem colorWheelSystem;
