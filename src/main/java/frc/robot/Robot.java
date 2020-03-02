@@ -82,7 +82,7 @@ private int numberOfColorChanges = 0;
   private final Color kRed = ColorMatch.makeColor(0.561,0.232,0.114);
   private final Color kYellow = ColorMatch.makeColor(0.361,0.524,0.113);
 
-  private int kColorChangesForStageTwo = 25;
+  private int kColorChangesForStageTwo = 32;
   private boolean stageTwoComplete = false;
 
   //private ColorWheelSystem colorWheelSystem;
@@ -194,7 +194,15 @@ private int numberOfColorChanges = 0;
 //**********COLOR WHEEL ROTATION CONTROL**********//
 //If top right bumper button is pressed, turn the color wheel drive motor
     if (gamepadOperator.getRawButton(6)){
-      colorWheelDrive.set(-1);
+      //Check that the number of color changes is enough to achieve rotation control
+      if (numberOfColorChanges > kColorChangesForStageTwo){
+        stageTwoComplete = true;
+        colorWheelDrive.set(-1);
+      }
+      else{
+        stageTwoComplete = false;
+        colorWheelDrive.set(0.0);
+      }
     }
     else{
       //...otherwise turn it off.
@@ -288,16 +296,6 @@ private int numberOfColorChanges = 0;
   }
   //Set the lastColorString equal to the current one so that we can check for changes on the next loop
   lastColorString = colorString;
-
-  //Check that the number of color changes is enough to achieve rotation control
-  if (numberOfColorChanges > kColorChangesForStageTwo){
-
-    stageTwoComplete = true;
-
-  }
-  else{
-    stageTwoComplete = false;
-    }
 
   //Set up the start button to reset the counter for color changes of the wheel.
   if(gamepadOperator.getStartButtonPressed()){
