@@ -126,7 +126,7 @@ private int numberOfColorChanges = 0;
 //Set up climb motor controllers
       climbMotorCIM1 = new WPI_TalonSRX(10);
       climbMotorCIM2 = new WPI_TalonSRX(11);
-      climbMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
+      climbMotorGroup = new SpeedControllerGroup(climbMotorCIM1,climbMotorCIM2);
 
 //Set up the color wheel system motor controllers
       colorWheelDrive = new WPI_VictorSPX(8);
@@ -260,41 +260,41 @@ private int numberOfColorChanges = 0;
    
     
    
-    if(moveColorWheelUpDown == 1) {
-      //Check if colorWheelArmLowerLimit switch is not pressed before running motor
-      if(lastPressed && colorWheelState == 2) {
-        colorWheelArm.set(-.5);
-        colorWheelPosition = "MOVING DOWN";
-      } else if(!colorWheelArmLowerLimit.get()) {
-        colorWheelArm.set(0);
-        lastPressed = true;
-        if(colorMatch == 'Red'){
-          colorWheelState = 1
-        }
-        else{
-          colorWheelState = 2
-        }
-        //colorWheelState = 1;
-        colorWheelPosition = "DOWN";
-      }
-    } else if(moveColorWheelUpDown == 2) {
-      //Check if colorWheelArmUpperLimit switch is not pressed before running motor
-      if(lastPressed && colorWheelState == 1) {
-        colorWheelArm.set(.5);
-        colorWheelPosition = "MOVING UP";
-      } else if (!colorWheelArmLowerLimit.get()){
-        colorWheelArm.set(0);
-        lastPressed = true;
-        if(colorMatch == 'Red'){
-          colorWheelState = 1
-        }
-        else{
-          colorWheelState = 2
-        }
-        //colorWheelState = 2;
-        colorWheelPosition = "UP";
-      }
-    }
+    // if(moveColorWheelUpDown == 1) {
+    //   //Check if colorWheelArmLowerLimit switch is not pressed before running motor
+    //   if(lastPressed && colorWheelState == 2) {
+    //     colorWheelArm.set(-.5);
+    //     colorWheelPosition = "MOVING DOWN";
+    //   } else if(!colorWheelArmLowerLimit.get()) {
+    //     colorWheelArm.set(0);
+    //     lastPressed = true;
+    //     if(colorMatch == "Red"){
+    //       colorWheelState = 1
+    //     }
+    //     else{
+    //       colorWheelState = 2
+    //     }
+    //     //colorWheelState = 1;
+    //     colorWheelPosition = "DOWN";
+    //   }
+    // } else if(moveColorWheelUpDown == 2) {
+    //   //Check if colorWheelArmUpperLimit switch is not pressed before running motor
+    //   if(lastPressed && colorWheelState == 1) {
+    //     colorWheelArm.set(.5);
+    //     colorWheelPosition = "MOVING UP";
+    //   } else if (!colorWheelArmLowerLimit.get()){
+    //     colorWheelArm.set(0);
+    //     lastPressed = true;
+    //     if(colorMatch == 'Red'){
+    //       colorWheelState = 1
+    //     }
+    //     else{
+    //       colorWheelState = 2
+    //     }
+    //     //colorWheelState = 2;
+    //     colorWheelPosition = "UP";
+    //   }
+    // }
 
 
   //**********COLOR SENSOR **********//
@@ -364,18 +364,14 @@ if(climbMotorEnabled){
   if (gamepadOperator.getAButton()){
     climbMotorGroup.set(1.0);
   }
+  //If operator AYbutton is pressed, set the climbMotorGroup to be on backward
+  else if(gamepadOperator.getYButton()){
+    climbMotorGroup.set(-1.0);
+  }
   else{
     //...otherwise turn it off.
     climbMotorGroup.set(0.0);
   }
-  //If operator AYbutton is pressed, set the climbMotorGroup to be on backward
-  if(gamepadOperator.getYButton()){
-    climbMotorGroup.set(-1.0);
-  }
-  else{
-    climbMotorGroup.set(0.0);
-  }
-
 }
 
 
