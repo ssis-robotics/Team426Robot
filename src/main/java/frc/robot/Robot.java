@@ -237,6 +237,7 @@ private int numberOfColorChanges = 0;
 
     //moveColorWheelUpDown == 1: move color wheel manipulator down
     //moveColorWheelUpDown == 2: move color wheel manipulator up
+    //moveColorWheelUpDown == 0: color wheel is stationary in either the up or down position.
 
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
   
@@ -255,53 +256,48 @@ private int numberOfColorChanges = 0;
       moveColorWheelUpDown = 2;
     }
 
-    if(lastPressed && colorWheelArmLowerLimit.get()) {
-      lastPressed = !colorWheelArmLowerLimit.get();
-    }
+    //evaluate and react to the state of color wheel
+    switch(moveColorWheelUpDown){
 
-    //Feel free to comment this out if it doesn't fix the problem.
-    //Get the raw readings from the color sensor
-    detectedColor = m_colorSensor.getColor();
+      //Case 0 is the idle state of the color wheel arm. The motor power is set to zero.
 
-    //Try to match the color sensor reading to get the actual colorWheelState
-    colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
-   
-    
-   
-    if(moveColorWheelUpDown == 1) {
-      //Check if colorWheelArmLowerLimit switch is not pressed before running motor
-      if(lastPressed && colorWheelState == 2) {
-        colorWheelArm.set(-.5);
-        colorWheelPosition = "MOVING DOWN";
-      } else if(!colorWheelArmLowerLimit.get()) {
-        colorWheelArm.set(0);
-        lastPressed = true;
-        if(colorMatch.color == kRed){
-          colorWheelState = 1;
-        }
-        else{
-          colorWheelState = 2;
-        }
-        //colorWheelState = 1;
+      //Case 1 is that the color wheel should be moving into the down position.
+      case 1:
+
+      if(!colorWheelArmLowerLimit.get()){
+        //If the lower limit switch is hit, it means the arm has arrived at the down position.
         colorWheelPosition = "DOWN";
+
+        //Set the state of the arm to be idle. 
+        moveColorWheelUpDown = 0; 
       }
-    } else if(moveColorWheelUpDown == 2) {
-      //Check if colorWheelArmUpperLimit switch is not pressed before running motor
-      if(lastPressed && colorWheelState == 1) {
-        colorWheelArm.set(.5);
-        colorWheelPosition = "MOVING UP";
-      } else if (!colorWheelArmLowerLimit.get()){
-        colorWheelArm.set(0);
-        lastPressed = true;
-        if(colorMatch.color == kRed){
-          colorWheelState = 1;
+      else{
+        //If the limit switch has not been hit, but moveColorWheelUpDown is 1, it means the arm is moving down.
+        colorWheelPosition = "MOVING DOWN";
+        colorWheelArm.set(-.5);
+
+      }
+      break;
+
+      //Case 2 is that the color wheel is to be moving into the up position.
+      case 2:
+        if(!colorWheelArmUpperLimit.get()){
+          //If the upper limit switch is hit, it means the arm has arrived at the up position.
+          colorWheelPosition = "UP";
+
+          //Set the state of the arm to be idle. 
+          moveColorWheelUpDown = 0; 
         }
         else{
-          colorWheelState = 2;
+          //If the limit switch has not been hit, but moveColorWheelUpDown is 2, it means the arm is still moving up.
+          colorWheelPosition = "MOVING UP";
+          colorWheelArm.set(.5);
+
         }
-        //colorWheelState = 2;
-        colorWheelPosition = "UP";
-      }
+        break;
+      
+
+
     }
 
 
@@ -340,7 +336,9 @@ private int numberOfColorChanges = 0;
 
   //Set up the start button to reset the counter for color changes of the wheel.
   if(gamepadOperator.getStartButtonPressed()){
+    //We want to reset both the number and stageTwoComplete because we probably didn't get the rotation count right for stage two. 
     numberOfColorChanges = 0;
+    stageTwoComplete = false;
   }
 
   //**********CLIMB MOTOR CONTROL**********//
