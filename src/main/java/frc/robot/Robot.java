@@ -82,13 +82,13 @@ private ColorMatchResult colorMatch = m_colorMatcher.matchClosestColor(detectedC
 private String lastColorString = "";
 private int numberOfColorChanges = 0;
 
-  //These colors may need to be calibrated with the color wheel in NYC.
+  //These colors have been updated with tests from March 1 in NYC
   //Each color has a decimal value for red, blue, and green in the parentheses.
-  //Use the color values in the dashboard to check these to make sure they match.
-  private final Color kBlue = ColorMatch.makeColor(0.143,0.427,0.429);
-  private final Color kGreen = ColorMatch.makeColor(0.197,0.561,0.240);
-  private final Color kRed = ColorMatch.makeColor(0.561,0.232,0.114);
-  private final Color kYellow = ColorMatch.makeColor(0.361,0.524,0.113);
+  
+  private final Color kBlue = ColorMatch.makeColor(0.131,0.457,0.412);
+  private final Color kGreen = ColorMatch.makeColor(0.169,0.594,0.238);
+  private final Color kRed = ColorMatch.makeColor(0.542,0.347,0.112);
+  private final Color kYellow = ColorMatch.makeColor(0.323,0.565,0.113);
 
   private int kColorChangesForStageTwo = 32;
   private boolean stageTwoComplete = false;
