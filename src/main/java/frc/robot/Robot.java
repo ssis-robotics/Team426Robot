@@ -213,15 +213,16 @@ private int numberOfColorChanges = 0;
 
 //**********COLOR WHEEL ROTATION CONTROL**********//
 //If top right bumper button is pressed, turn the color wheel drive motor
-    if (gamepadOperator.getRawButton(6)){
+    if (gamepadOperator.getBumper(Hand.kRight)){
       //Check that the number of color changes is enough to achieve rotation control
       if (numberOfColorChanges > kColorChangesForStageTwo){
         stageTwoComplete = true;
-        colorWheelDrive.set(-1);
+        colorWheelDrive.set(0.0);
+        
       }
       else{
         stageTwoComplete = false;
-        colorWheelDrive.set(0.0);
+        colorWheelDrive.set(-1);
       }
     }
     else{
