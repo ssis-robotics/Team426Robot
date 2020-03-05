@@ -156,8 +156,8 @@ private int numberOfColorChanges = 0;
 
 
     double leftY = gamepadDrive.getY(Hand.kLeft);
-    double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
 
+    double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
 
     m_myRobot.arcadeDrive(leftY,rightX);
 
@@ -260,6 +260,11 @@ private int numberOfColorChanges = 0;
     switch(moveColorWheelUpDown){
 
       //Case 0 is the idle state of the color wheel arm. The motor power is set to zero.
+
+      case 0:
+        colorWheelArm.set(0);
+        break;
+
 
       //Case 1 is that the color wheel should be moving into the down position.
       case 1:
@@ -366,9 +371,9 @@ if(climbMotorEnabled){
     climbMotorGroup.set(-1.0);
   }
   else{
+    //...otherwise turn it off.
     climbMotorGroup.set(0.0);
   }
-
 }
 
 
