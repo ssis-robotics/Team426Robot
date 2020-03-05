@@ -260,9 +260,11 @@ private int numberOfColorChanges = 0;
     switch(moveColorWheelUpDown){
 
       //Case 0 is the idle state of the color wheel arm. The motor power is set to zero.
+
       case 0:
         colorWheelArm.set(0);
         break;
+
 
       //Case 1 is that the color wheel should be moving into the down position.
       case 1:
