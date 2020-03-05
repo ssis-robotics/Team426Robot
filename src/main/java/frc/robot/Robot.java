@@ -126,7 +126,7 @@ private int numberOfColorChanges = 0;
 //Set up climb motor controllers
       climbMotorCIM1 = new WPI_TalonSRX(10);
       climbMotorCIM2 = new WPI_TalonSRX(11);
-      climbMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
+      climbMotorGroup = new SpeedControllerGroup(climbMotorCIM1,climbMotorCIM2);
 
 //Set up the color wheel system motor controllers
       colorWheelDrive = new WPI_VictorSPX(8);
@@ -268,11 +268,11 @@ private int numberOfColorChanges = 0;
       } else if(!colorWheelArmLowerLimit.get()) {
         colorWheelArm.set(0);
         lastPressed = true;
-        if(colorMatch == 'Red'){
-          colorWheelState = 1
+        if(colorMatch.color == kRed){
+          colorWheelState = 1;
         }
         else{
-          colorWheelState = 2
+          colorWheelState = 2;
         }
         //colorWheelState = 1;
         colorWheelPosition = "DOWN";
@@ -285,11 +285,11 @@ private int numberOfColorChanges = 0;
       } else if (!colorWheelArmLowerLimit.get()){
         colorWheelArm.set(0);
         lastPressed = true;
-        if(colorMatch == 'Red'){
-          colorWheelState = 1
+        if(colorMatch.color == kRed){
+          colorWheelState = 1;
         }
         else{
-          colorWheelState = 2
+          colorWheelState = 2;
         }
         //colorWheelState = 2;
         colorWheelPosition = "UP";
@@ -364,12 +364,9 @@ if(climbMotorEnabled){
   if (gamepadOperator.getAButton()){
     climbMotorGroup.set(1.0);
   }
-  else{
-    //...otherwise turn it off.
-    climbMotorGroup.set(0.0);
-  }
+  
   //If operator AYbutton is pressed, set the climbMotorGroup to be on backward
-  if(gamepadOperator.getYButton()){
+  else if(gamepadOperator.getYButton()){
     climbMotorGroup.set(-1.0);
   }
   else{
