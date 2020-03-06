@@ -101,6 +101,8 @@ private int numberOfColorChanges = 0;
 
   //private ColorWheelSystem colorWheelSystem;
 
+  private int leftEncoderReading = 159;
+  private int rightEncoderReading = 314;
 
   @Override
   public void robotInit() {
@@ -200,7 +202,8 @@ rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder
     SmartDashboard.putNumber("numberOfColorChanges", numberOfColorChanges);
 
     //Show robot position data from encoders and Pigeon IMU
-    
+    SmartDashboard.putNumber("leftEncoder",leftEncoderReading);
+    SmartDashboard.putNumber("rightEncoder",rightEncoderReading);
 
 //**********CONVEYOR CONTROL**********//
 
@@ -392,7 +395,9 @@ if(climbMotorEnabled){
   }
 }
 
-
+ //**********ROBOT NAVIGATION DATA**********//
+  leftEncoderReading = leftMotorControllerCIM2.getSelectedSensorPosition();
+  rightEncoderReading = rightMotorControllerCIM1.getSelectedSensorPosition();
 
 } //End of robotPeriodicTeleop
 
