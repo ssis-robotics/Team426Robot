@@ -47,8 +47,6 @@ public class Robot extends TimedRobot {
   private WPI_TalonSRX rightMotorControllerCIM1;
   private WPI_TalonSRX rightMotorControllerCIM2;
   
-  private TalonSRXFeedbackDevice leftEncoder;
-  private TalonSRXFeedbackDevice rightEncoder;
 
   private SpeedControllerGroup leftMotorGroup;
   private SpeedControllerGroup rightMotorGroup;
@@ -111,6 +109,7 @@ private int numberOfColorChanges = 0;
 //Set up the drive motor controllers
       leftMotorControllerCIM1 = new WPI_TalonSRX(0);
       leftMotorControllerCIM2 = new WPI_TalonSRX(1);
+      
       leftMotorGroup = new SpeedControllerGroup(leftMotorControllerCIM1,leftMotorControllerCIM2);
 
       rightMotorControllerCIM1 = new WPI_TalonSRX(2);
@@ -119,13 +118,13 @@ private int numberOfColorChanges = 0;
 
 //Create a differential drive system using the left and right motor groups
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
-      m_myRobot.setRightSideInverted(false);
+      
 
 //Set up the two Xbox controllers. The drive is for driving, the operator is for all conveyor and color wheel controls
       gamepadDrive = new XboxController(0);
       gamepadOperator = new XboxController(1);
 
-      leftMotorGroup.setInverted(true);
+     
 //Set up conveyor motor controllers
       conveyorMotorCIM1 = new WPI_VictorSPX(6);
       conveyorMotorCIM2 = new WPI_VictorSPX(7);
@@ -159,7 +158,11 @@ private int numberOfColorChanges = 0;
 //Set up encoders on the left and right sides of the drive
 //
 leftMotorControllerCIM2.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+leftMotorControllerCIM2.setSensorPhase(true);
+leftMotorControllerCIM2.setSelectedSensorPosition(0);
 rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+rightMotorControllerCIM1.setSelectedSensorPosition(0);
+
   }
 
   @Override
@@ -169,9 +172,9 @@ rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder
   //Set the drive motors according to the coordinates of the right joystick on the drive controller
 
 
-    double leftY = gamepadDrive.getY(Hand.kLeft);
+    double leftY = gamepadDrive.getY(Hand.kLeft)*-1.0;
 
-    double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
+    double rightX = gamepadDrive.getX(Hand.kRight)*0.7;
 
     m_myRobot.arcadeDrive(leftY,rightX);
 
