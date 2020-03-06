@@ -13,9 +13,12 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.*;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -44,9 +47,12 @@ public class Robot extends TimedRobot {
   private WPI_TalonSRX rightMotorControllerCIM1;
   private WPI_TalonSRX rightMotorControllerCIM2;
   
+  private TalonSRXFeedbackDevice leftEncoder;
+  private TalonSRXFeedbackDevice rightEncoder;
 
   private SpeedControllerGroup leftMotorGroup;
   private SpeedControllerGroup rightMotorGroup;
+
 
   private WPI_VictorSPX conveyorMotorCIM1;
   private WPI_VictorSPX conveyorMotorCIM2;
@@ -146,6 +152,12 @@ private int numberOfColorChanges = 0;
 //Set up the color wheel system motor controllers
       colorWheelDrive = new WPI_VictorSPX(8);
       colorWheelArm = new WPI_VictorSPX(9);
+
+
+//Set up encoders on the left and right sides of the drive
+//
+leftMotorControllerCIM2.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
   }
 
   @Override
