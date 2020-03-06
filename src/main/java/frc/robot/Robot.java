@@ -18,6 +18,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -80,11 +81,11 @@ public class Robot extends TimedRobot {
   private final ColorMatch m_colorMatcher = new ColorMatch();
 
   //Set up variables for the color sensor
-private Color detectedColor = m_colorSensor.getColor();
-private String colorString = "Unknown";
-private ColorMatchResult colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
-private String lastColorString = "";
-private int numberOfColorChanges = 0;
+  private Color detectedColor = m_colorSensor.getColor();
+  private String colorString = "Unknown";
+  private ColorMatchResult colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
+  private String lastColorString = "";
+  private int numberOfColorChanges = 0;
 
   //These colors have been updated with tests from March 1 in NYC
   //Each color has a decimal value for red, blue, and green in the parentheses.
@@ -101,6 +102,10 @@ private int numberOfColorChanges = 0;
 
   private int leftEncoderReading = 159;
   private int rightEncoderReading = 314;
+  private PigeonIMU pigeonIMU = new PigeonIMU(0);
+  private double [] pigeonIMUData;
+
+  private double robotHeading;
 
   @Override
   public void robotInit() {
@@ -157,12 +162,17 @@ private int numberOfColorChanges = 0;
 
 //Set up encoders on the left and right sides of the drive
 //
-leftMotorControllerCIM2.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
-leftMotorControllerCIM2.setSensorPhase(true);
-leftMotorControllerCIM2.setSelectedSensorPosition(0);
-rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
-rightMotorControllerCIM1.setSelectedSensorPosition(0);
+      leftMotorControllerCIM2.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+      leftMotorControllerCIM2.setSensorPhase(true);
+      leftMotorControllerCIM2.setSelectedSensorPosition(0);
+      rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+      rightMotorControllerCIM1.setSelectedSensorPosition(0);
 
+//Set up the Pigeon
+      
+      pigeonIMUData = new double[3];
+      pigeonIMU.setFusedHeading(70);
+      
   }
 
   @Override
@@ -207,6 +217,7 @@ rightMotorControllerCIM1.setSelectedSensorPosition(0);
     //Show robot position data from encoders and Pigeon IMU
     SmartDashboard.putNumber("leftEncoder",leftEncoderReading);
     SmartDashboard.putNumber("rightEncoder",rightEncoderReading);
+    //Nam - your code goes in the next line. Talk to Leo if you need help.
 
 //**********CONVEYOR CONTROL**********//
 
@@ -401,6 +412,9 @@ if(climbMotorEnabled){
  //**********ROBOT NAVIGATION DATA**********//
   leftEncoderReading = leftMotorControllerCIM2.getSelectedSensorPosition();
   rightEncoderReading = rightMotorControllerCIM1.getSelectedSensorPosition();
+  pigeonIMU.getYawPitchRoll(pigeonIMUData);
+
+  robotHeading = pigeonIMUData[0];  
 
 } //End of robotPeriodicTeleop
 
