@@ -395,6 +395,12 @@ if(climbMotorEnabled){
 
 
 
+//**********ROBOT NAVIGATION DATA **********//
+    //Read encoder values
+    leftEncoderReading = leftMotorControllerCIM2.getSelectedSensorPosition();
+    rightEncoderReading = rightMotorControllerCIM1.getSelectedSensorPosition();
+    
+    
 } //End of robotPeriodicTeleop
 
 
