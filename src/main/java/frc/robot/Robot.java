@@ -200,7 +200,8 @@ rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder
     SmartDashboard.putNumber("numberOfColorChanges", numberOfColorChanges);
 
     //Show robot position data from encoders and Pigeon IMU
-    
+    SmartDashboard.putNumber("Left Encoder",leftEncoderValue);
+    SmartDashboard.putNumber("Right Encoder",rightEncoderValue);
 
 //**********CONVEYOR CONTROL**********//
 
