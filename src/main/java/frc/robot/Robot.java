@@ -250,7 +250,7 @@ public class Robot extends TimedRobot {
       if (numberOfColorChanges > kColorChangesForStageTwo){
         stageTwoComplete = true;
         colorWheelDrive.set(0.0);
-        
+
       }
       else{
         stageTwoComplete = false;
@@ -312,7 +312,7 @@ public class Robot extends TimedRobot {
       else{
         //If the limit switch has not been hit, but moveColorWheelUpDown is 1, it means the arm is moving down.
         colorWheelPosition = "MOVING DOWN";
-        colorWheelArm.set(-.5);
+        colorWheelArm.set(-1);
 
       }
       break;
@@ -329,7 +329,7 @@ public class Robot extends TimedRobot {
         else{
           //If the limit switch has not been hit, but moveColorWheelUpDown is 2, it means the arm is still moving up.
           colorWheelPosition = "MOVING UP";
-          colorWheelArm.set(.5);
+          colorWheelArm.set(1);
 
         }
         break;
