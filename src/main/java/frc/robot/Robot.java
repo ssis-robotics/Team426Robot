@@ -137,7 +137,7 @@ public class Robot extends TimedRobot {
 //Set up conveyor motor controllers
       conveyorMotorCIM1 = new WPI_VictorSPX(6);
       conveyorMotorCIM2 = new WPI_VictorSPX(7);
-      conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
+     // conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
 
 //Set up climb motor controllers
       climbMotorCIM1 = new WPI_TalonSRX(10);
@@ -236,23 +236,41 @@ public class Robot extends TimedRobot {
 //If button X is pressed on the operator control...
     if(gamepadOperator.getXButton()){
       //Set the conveyor to full forward
-      conveyorMotorGroup.set(0.75);
+      conveyorMotorCIM1.set(0.75);
     }
     else
     //if button B is pressed
     if(gamepadOperator.getBButton()){
       //Set the conveyor to full backward
 
-      conveyorMotorGroup.set(-0.75);
+      conveyorMotorCIM1.set(-0.75);
 
     }
     else{
-      conveyorMotorGroup.set(0.0);
+      conveyorMotorCIM1.set(0.0);
       
 
     }
 
+//left button is full intake, bottom button is full stop, right button is full dump
+//If button X is pressed on the operator control...
+if(gamepadOperator.getPOV() == 180){
+  //Set the conveyor to dump
+  conveyorMotorCIM2.set(0.5);
+}
+else
+//if button B is pressed
+if(gamepadOperator.getPOV() == 0){
+  //Set the conveyor to full backward
 
+  conveyorMotorCIM2.set(-0.2);
+
+}
+else{
+  conveyorMotorCIM2.set(0.0);
+  
+
+}
 
 //**********COLOR WHEEL ROTATION CONTROL**********//
 //If top right bumper button is pressed, turn the color wheel drive motor
