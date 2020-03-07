@@ -13,9 +13,13 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.*;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.sensors.PigeonIMU;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -48,6 +52,7 @@ public class Robot extends TimedRobot {
   private SpeedControllerGroup leftMotorGroup;
   private SpeedControllerGroup rightMotorGroup;
 
+
   private WPI_VictorSPX conveyorMotorCIM1;
   private WPI_VictorSPX conveyorMotorCIM2;
   private SpeedControllerGroup conveyorMotorGroup;
@@ -76,11 +81,11 @@ public class Robot extends TimedRobot {
   private final ColorMatch m_colorMatcher = new ColorMatch();
 
   //Set up variables for the color sensor
-private Color detectedColor = m_colorSensor.getColor();
-private String colorString = "Unknown";
-private ColorMatchResult colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
-private String lastColorString = "";
-private int numberOfColorChanges = 0;
+  private Color detectedColor = m_colorSensor.getColor();
+  private String colorString = "Unknown";
+  private ColorMatchResult colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
+  private String lastColorString = "";
+  private int numberOfColorChanges = 0;
 
   //These colors have been updated with tests from March 1 in NYC
   //Each color has a decimal value for red, blue, and green in the parentheses.
@@ -95,6 +100,12 @@ private int numberOfColorChanges = 0;
 
   //private ColorWheelSystem colorWheelSystem;
 
+  private int leftEncoderReading = 159;
+  private int rightEncoderReading = 314;
+  private PigeonIMU pigeonIMU = new PigeonIMU(0);
+  private double [] pigeonIMUData;
+
+  private double robotHeading;
 
   @Override
   public void robotInit() {
@@ -103,6 +114,7 @@ private int numberOfColorChanges = 0;
 //Set up the drive motor controllers
       leftMotorControllerCIM1 = new WPI_TalonSRX(0);
       leftMotorControllerCIM2 = new WPI_TalonSRX(1);
+      
       leftMotorGroup = new SpeedControllerGroup(leftMotorControllerCIM1,leftMotorControllerCIM2);
 
       rightMotorControllerCIM1 = new WPI_TalonSRX(2);
@@ -111,13 +123,13 @@ private int numberOfColorChanges = 0;
 
 //Create a differential drive system using the left and right motor groups
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
-      m_myRobot.setRightSideInverted(false);
+      
 
 //Set up the two Xbox controllers. The drive is for driving, the operator is for all conveyor and color wheel controls
       gamepadDrive = new XboxController(0);
       gamepadOperator = new XboxController(1);
 
-      leftMotorGroup.setInverted(true);
+     
 //Set up conveyor motor controllers
       conveyorMotorCIM1 = new WPI_VictorSPX(6);
       conveyorMotorCIM2 = new WPI_VictorSPX(7);
@@ -146,6 +158,21 @@ private int numberOfColorChanges = 0;
 //Set up the color wheel system motor controllers
       colorWheelDrive = new WPI_VictorSPX(8);
       colorWheelArm = new WPI_VictorSPX(9);
+
+
+//Set up encoders on the left and right sides of the drive
+//
+      leftMotorControllerCIM2.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+      leftMotorControllerCIM2.setSensorPhase(true);
+      leftMotorControllerCIM2.setSelectedSensorPosition(0);
+      rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+      rightMotorControllerCIM1.setSelectedSensorPosition(0);
+
+//Set up the Pigeon
+      
+      pigeonIMUData = new double[3];
+      pigeonIMU.setFusedHeading(70);
+      
   }
 
   @Override
@@ -155,9 +182,9 @@ private int numberOfColorChanges = 0;
   //Set the drive motors according to the coordinates of the right joystick on the drive controller
 
 
-    double leftY = gamepadDrive.getY(Hand.kLeft);
+    double leftY = gamepadDrive.getY(Hand.kLeft)*-1.0;
 
-    double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
+    double rightX = gamepadDrive.getX(Hand.kRight)*0.7;
 
     m_myRobot.arcadeDrive(leftY,rightX);
 
@@ -186,6 +213,11 @@ private int numberOfColorChanges = 0;
     SmartDashboard.putNumber("Confidence",colorMatch.confidence);
     SmartDashboard.putString("Detected Color",colorString);
     SmartDashboard.putNumber("numberOfColorChanges", numberOfColorChanges);
+
+    //Show robot position data from encoders and Pigeon IMU
+    SmartDashboard.putNumber("leftEncoder",leftEncoderReading);
+    SmartDashboard.putNumber("rightEncoder",rightEncoderReading);
+    //Nam - your code goes in the next line. Talk to Leo if you need help.
 
 //**********CONVEYOR CONTROL**********//
 
@@ -218,6 +250,7 @@ private int numberOfColorChanges = 0;
       if (numberOfColorChanges > kColorChangesForStageTwo){
         stageTwoComplete = true;
         colorWheelDrive.set(0.0);
+
       }
       else{
         stageTwoComplete = false;
@@ -376,7 +409,12 @@ if(climbMotorEnabled){
   }
 }
 
+ //**********ROBOT NAVIGATION DATA**********//
+  leftEncoderReading = leftMotorControllerCIM2.getSelectedSensorPosition();
+  rightEncoderReading = rightMotorControllerCIM1.getSelectedSensorPosition();
+  pigeonIMU.getYawPitchRoll(pigeonIMUData);
 
+  robotHeading = pigeonIMUData[0];  
 
 } //End of robotPeriodicTeleop
 
