@@ -102,7 +102,7 @@ public class Robot extends TimedRobot {
 
   private int leftEncoderReading = 159;
   private int rightEncoderReading = 314;
-  private PigeonIMU pigeonIMU = new PigeonIMU(0);
+  private PigeonIMU pigeonIMU = new PigeonIMU(leftMotorControllerCIM1);
   private double [] pigeonIMUData;
 
   private double robotHeading;
