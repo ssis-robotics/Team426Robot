@@ -109,7 +109,7 @@ public class Robot extends TimedRobot {
   private double robotHeading;
   
   //Pixy variables
-  private Pixy2 pixy;
+  //private Pixy2 pixy;
 
   @Override
   public void robotInit() {
@@ -178,11 +178,12 @@ public class Robot extends TimedRobot {
       pigeonIMU.setFusedHeading(70);
     
 //Set up the Pixy
+/*
     pixy = Pixy2.createInstance(new SPILink()); // Creates a new Pixy2 camera using SPILink
 		pixy.init(); // Initializes the camera and prepares to send/receive data
 		pixy.setLamp((byte) 1, (byte) 1); // Turns the LEDs on
 		pixy.setLED(200, 30, 255); // Sets the RGB LED to purple
-      
+   */   
   }
 
   @Override
