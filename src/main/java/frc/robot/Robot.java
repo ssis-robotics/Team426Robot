@@ -102,7 +102,7 @@ public class Robot extends TimedRobot {
 
   private int leftEncoderReading = 159;
   private int rightEncoderReading = 314;
-  private PigeonIMU pigeonIMU = new PigeonIMU(leftMotorControllerCIM1);
+  private PigeonIMU pigeonIMU;
   private double [] pigeonIMUData;
 
   private double robotHeading;
@@ -169,7 +169,7 @@ public class Robot extends TimedRobot {
       rightMotorControllerCIM1.setSelectedSensorPosition(0);
 
 //Set up the Pigeon
-      
+      pigeonIMU = new PigeonIMU(leftMotorControllerCIM1);
       pigeonIMUData = new double[3];
       pigeonIMU.setFusedHeading(70);
       
@@ -218,7 +218,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("leftEncoder",leftEncoderReading);
     SmartDashboard.putNumber("rightEncoder",rightEncoderReading);
     //Nam - your code goes in the next line. Talk to Leo if you need help.
-
+    SmartDashboard.putNumber("Robot Heading",robotHeading);
 //**********CONVEYOR CONTROL**********//
 
 //left button is full intake, bottom button is full stop, right button is full dump
@@ -414,7 +414,7 @@ if(climbMotorEnabled){
   rightEncoderReading = rightMotorControllerCIM1.getSelectedSensorPosition();
   pigeonIMU.getYawPitchRoll(pigeonIMUData);
 
-  robotHeading = pigeonIMUData[0];  
+  robotHeading = pigeonIMU.getFusedHeading();  
 
 } //End of robotPeriodicTeleop
 
