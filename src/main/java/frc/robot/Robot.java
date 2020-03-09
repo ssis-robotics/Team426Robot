@@ -13,9 +13,13 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.*;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.sensors.PigeonIMU;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -43,13 +47,19 @@ public class Robot extends TimedRobot {
   private WPI_TalonSRX leftMotorControllerCIM2;
   private WPI_TalonSRX rightMotorControllerCIM1;
   private WPI_TalonSRX rightMotorControllerCIM2;
+  
 
   private SpeedControllerGroup leftMotorGroup;
   private SpeedControllerGroup rightMotorGroup;
 
+
   private WPI_VictorSPX conveyorMotorCIM1;
   private WPI_VictorSPX conveyorMotorCIM2;
   private SpeedControllerGroup conveyorMotorGroup;
+
+  private WPI_TalonSRX climbMotorCIM1;
+  private WPI_TalonSRX climbMotorCIM2;
+  private SpeedControllerGroup climbMotorGroup;
 
   private DigitalInput colorWheelArmLowerLimit;
   private DigitalInput colorWheelArmUpperLimit;
@@ -62,31 +72,40 @@ public class Robot extends TimedRobot {
   private Boolean operatorGamepadLeftTriggerPressed = false;
   private String colorWheelPosition = "DOWN";
   
+  //variable for arming the climb system
+  private Boolean climbMotorEnabled = false;
+
   //Add color sensor through the onboard I2C port
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
   private final ColorMatch m_colorMatcher = new ColorMatch();
 
   //Set up variables for the color sensor
-private Color detectedColor = m_colorSensor.getColor();
-private String colorString = "Unknown";
-private ColorMatchResult colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
-private String lastColorString = "";
-private int numberOfColorChanges = 0;
+  private Color detectedColor = m_colorSensor.getColor();
+  private String colorString = "Unknown";
+  private ColorMatchResult colorMatch = m_colorMatcher.matchClosestColor(detectedColor);
+  private String lastColorString = "";
+  private int numberOfColorChanges = 0;
 
-  //These colors may need to be calibrated with the color wheel in NYC.
+  //These colors have been updated with tests from March 1 in NYC
   //Each color has a decimal value for red, blue, and green in the parentheses.
-  //Use the color values in the dashboard to check these to make sure they match.
-  private final Color kBlue = ColorMatch.makeColor(0.143,0.427,0.429);
-  private final Color kGreen = ColorMatch.makeColor(0.197,0.561,0.240);
-  private final Color kRed = ColorMatch.makeColor(0.561,0.232,0.114);
-  private final Color kYellow = ColorMatch.makeColor(0.361,0.524,0.113);
+  
+  private final Color kBlue = ColorMatch.makeColor(0.131,0.457,0.412);
+  private final Color kGreen = ColorMatch.makeColor(0.169,0.594,0.238);
+  private final Color kRed = ColorMatch.makeColor(0.542,0.347,0.112);
+  private final Color kYellow = ColorMatch.makeColor(0.323,0.565,0.113);
 
   private int kColorChangesForStageTwo = 32;
   private boolean stageTwoComplete = false;
 
   //private ColorWheelSystem colorWheelSystem;
 
+  private int leftEncoderReading = 159;
+  private int rightEncoderReading = 314;
+  private PigeonIMU pigeonIMU = new PigeonIMU(leftMotorControllerCIM1);
+  private double [] pigeonIMUData;
+
+  private double robotHeading;
 
   @Override
   public void robotInit() {
@@ -95,6 +114,7 @@ private int numberOfColorChanges = 0;
 //Set up the drive motor controllers
       leftMotorControllerCIM1 = new WPI_TalonSRX(0);
       leftMotorControllerCIM2 = new WPI_TalonSRX(1);
+      
       leftMotorGroup = new SpeedControllerGroup(leftMotorControllerCIM1,leftMotorControllerCIM2);
 
       rightMotorControllerCIM1 = new WPI_TalonSRX(2);
@@ -103,17 +123,22 @@ private int numberOfColorChanges = 0;
 
 //Create a differential drive system using the left and right motor groups
       m_myRobot = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
-      m_myRobot.setRightSideInverted(false);
+      
 
 //Set up the two Xbox controllers. The drive is for driving, the operator is for all conveyor and color wheel controls
       gamepadDrive = new XboxController(0);
       gamepadOperator = new XboxController(1);
 
-      leftMotorGroup.setInverted(true);
+     
 //Set up conveyor motor controllers
       conveyorMotorCIM1 = new WPI_VictorSPX(6);
       conveyorMotorCIM2 = new WPI_VictorSPX(7);
       conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
+
+//Set up climb motor controllers
+      climbMotorCIM1 = new WPI_TalonSRX(10);
+      climbMotorCIM2 = new WPI_TalonSRX(11);
+      climbMotorGroup = new SpeedControllerGroup(climbMotorCIM1,climbMotorCIM2);
 
 //Set up the color wheel system motor controllers
       colorWheelDrive = new WPI_VictorSPX(8);
@@ -128,6 +153,26 @@ private int numberOfColorChanges = 0;
       m_colorMatcher.addColorMatch(kGreen);
       m_colorMatcher.addColorMatch(kRed);
       m_colorMatcher.addColorMatch(kYellow);
+
+
+//Set up the color wheel system motor controllers
+      colorWheelDrive = new WPI_VictorSPX(8);
+      colorWheelArm = new WPI_VictorSPX(9);
+
+
+//Set up encoders on the left and right sides of the drive
+//
+      leftMotorControllerCIM2.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+      leftMotorControllerCIM2.setSensorPhase(true);
+      leftMotorControllerCIM2.setSelectedSensorPosition(0);
+      rightMotorControllerCIM1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+      rightMotorControllerCIM1.setSelectedSensorPosition(0);
+
+//Set up the Pigeon
+      
+      pigeonIMUData = new double[3];
+      pigeonIMU.setFusedHeading(70);
+      
   }
 
   @Override
@@ -137,9 +182,9 @@ private int numberOfColorChanges = 0;
   //Set the drive motors according to the coordinates of the right joystick on the drive controller
 
 
-    double leftY = gamepadDrive.getY(Hand.kLeft);
-    double rightX = gamepadDrive.getX(Hand.kRight)*-0.7;
+    double leftY = gamepadDrive.getY(Hand.kLeft)*-1.0;
 
+    double rightX = gamepadDrive.getX(Hand.kRight)*0.7;
 
     m_myRobot.arcadeDrive(leftY,rightX);
 
@@ -150,6 +195,8 @@ private int numberOfColorChanges = 0;
     SmartDashboard.putNumber("leftMotor", leftMotorControllerCIM1.get());
     SmartDashboard.putNumber("rightMotor", rightMotorControllerCIM1.get());
     SmartDashboard.putNumber("conveyorMotor", conveyorMotorCIM1.get());
+    SmartDashboard.putNumber("climbMotor", climbMotorCIM1.get());
+    SmartDashboard.putBoolean("climbMotorEnabled",climbMotorEnabled);
 
     //Show color wheel information
     SmartDashboard.putNumber("colorWheelArm", colorWheelArm.get());
@@ -166,6 +213,11 @@ private int numberOfColorChanges = 0;
     SmartDashboard.putNumber("Confidence",colorMatch.confidence);
     SmartDashboard.putString("Detected Color",colorString);
     SmartDashboard.putNumber("numberOfColorChanges", numberOfColorChanges);
+
+    //Show robot position data from encoders and Pigeon IMU
+    SmartDashboard.putNumber("leftEncoder",leftEncoderReading);
+    SmartDashboard.putNumber("rightEncoder",rightEncoderReading);
+    //Nam - your code goes in the next line. Talk to Leo if you need help.
 
 //**********CONVEYOR CONTROL**********//
 
@@ -193,15 +245,16 @@ private int numberOfColorChanges = 0;
 
 //**********COLOR WHEEL ROTATION CONTROL**********//
 //If top right bumper button is pressed, turn the color wheel drive motor
-    if (gamepadOperator.getRawButton(6)){
+    if (gamepadOperator.getBumper(Hand.kRight)){
       //Check that the number of color changes is enough to achieve rotation control
       if (numberOfColorChanges > kColorChangesForStageTwo){
         stageTwoComplete = true;
-        colorWheelDrive.set(-1);
+        colorWheelDrive.set(0.0);
+
       }
       else{
         stageTwoComplete = false;
-        colorWheelDrive.set(0.0);
+        colorWheelDrive.set(-1);
       }
     }
     else{
@@ -217,6 +270,7 @@ private int numberOfColorChanges = 0;
 
     //moveColorWheelUpDown == 1: move color wheel manipulator down
     //moveColorWheelUpDown == 2: move color wheel manipulator up
+    //moveColorWheelUpDown == 0: color wheel is stationary in either the up or down position.
 
     //if top left bumper button is pressed and the upper limit switch is not pressed, raise the color wheel arm
   
@@ -235,35 +289,56 @@ private int numberOfColorChanges = 0;
       moveColorWheelUpDown = 2;
     }
 
-    if(lastPressed && colorWheelArmLowerLimit.get()) {
-      lastPressed = !colorWheelArmLowerLimit.get();
-    }
+    //evaluate and react to the state of color wheel
+    switch(moveColorWheelUpDown){
 
-    if(moveColorWheelUpDown == 1) {
-      //Check if colorWheelArmLowerLimit switch is not pressed before running motor
-      if(lastPressed && colorWheelState == 2) {
-        colorWheelArm.set(-.5);
-        colorWheelPosition = "MOVING DOWN";
-      } else if(!colorWheelArmLowerLimit.get()) {
+      //Case 0 is the idle state of the color wheel arm. The motor power is set to zero.
+
+      case 0:
         colorWheelArm.set(0);
-        lastPressed = true;
-        colorWheelState = 1;
+        break;
+
+
+      //Case 1 is that the color wheel should be moving into the down position.
+      case 1:
+
+      if(!colorWheelArmLowerLimit.get()){
+        //If the lower limit switch is hit, it means the arm has arrived at the down position.
         colorWheelPosition = "DOWN";
+
+        //Set the state of the arm to be idle. 
+        moveColorWheelUpDown = 0; 
       }
-    } else if(moveColorWheelUpDown == 2) {
-      //Check if colorWheelArmUpperLimit switch is not pressed before running motor
-      if(lastPressed && colorWheelState == 1) {
-        colorWheelArm.set(.5);
-        colorWheelPosition = "MOVING UP";
-      } else if (!colorWheelArmLowerLimit.get()){
-        colorWheelArm.set(0);
-        lastPressed = true;
-        colorWheelState = 2;
-        colorWheelPosition = "UP";
+      else{
+        //If the limit switch has not been hit, but moveColorWheelUpDown is 1, it means the arm is moving down.
+        colorWheelPosition = "MOVING DOWN";
+        colorWheelArm.set(-1);
+
       }
+      break;
+
+      //Case 2 is that the color wheel is to be moving into the up position.
+      case 2:
+        if(!colorWheelArmUpperLimit.get()){
+          //If the upper limit switch is hit, it means the arm has arrived at the up position.
+          colorWheelPosition = "UP";
+
+          //Set the state of the arm to be idle. 
+          moveColorWheelUpDown = 0; 
+        }
+        else{
+          //If the limit switch has not been hit, but moveColorWheelUpDown is 2, it means the arm is still moving up.
+          colorWheelPosition = "MOVING UP";
+          colorWheelArm.set(1);
+
+        }
+        break;
+      
+
+
     }
 
-  
+
   //**********COLOR SENSOR **********//
 
   //Get the raw readings from the color sensor
@@ -299,8 +374,47 @@ private int numberOfColorChanges = 0;
 
   //Set up the start button to reset the counter for color changes of the wheel.
   if(gamepadOperator.getStartButtonPressed()){
+    //We want to reset both the number and stageTwoComplete because we probably didn't get the rotation count right for stage two. 
     numberOfColorChanges = 0;
+    stageTwoComplete = false;
   }
+
+  //**********CLIMB MOTOR CONTROL**********//
+
+//If the drive gamepad A button is pressed, this arms or disarms the climb mechanism.
+
+if (gamepadDrive.getAButtonPressed()){
+  if(climbMotorEnabled){
+    climbMotorEnabled = false;
+  }
+  else{
+    climbMotorEnabled = true;
+  }
+}
+
+//These functions will only be active if the climbMotorEnabled variable is true:
+if(climbMotorEnabled){
+  //If operator A button is pressed, set the climbMotorGroup to be on forward
+  if (gamepadOperator.getAButton()){
+    climbMotorGroup.set(1.0);
+  }
+  
+  //If operator AYbutton is pressed, set the climbMotorGroup to be on backward
+  else if(gamepadOperator.getYButton()){
+    climbMotorGroup.set(-1.0);
+  }
+  else{
+    //...otherwise turn it off.
+    climbMotorGroup.set(0.0);
+  }
+}
+
+ //**********ROBOT NAVIGATION DATA**********//
+  leftEncoderReading = leftMotorControllerCIM2.getSelectedSensorPosition();
+  rightEncoderReading = rightMotorControllerCIM1.getSelectedSensorPosition();
+  pigeonIMU.getYawPitchRoll(pigeonIMUData);
+
+  robotHeading = pigeonIMUData[0];  
 
 } //End of robotPeriodicTeleop
 
