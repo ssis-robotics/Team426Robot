@@ -100,12 +100,16 @@ public class Robot extends TimedRobot {
 
   //private ColorWheelSystem colorWheelSystem;
 
+  //Robot navigation 
   private int leftEncoderReading = 159;
   private int rightEncoderReading = 314;
-  private PigeonIMU pigeonIMU = new PigeonIMU(leftMotorControllerCIM1);
+  private PigeonIMU pigeonIMU;
   private double [] pigeonIMUData;
 
   private double robotHeading;
+  
+  //Pixy variables
+  //private Pixy2 pixy;
 
   @Override
   public void robotInit() {
@@ -133,7 +137,7 @@ public class Robot extends TimedRobot {
 //Set up conveyor motor controllers
       conveyorMotorCIM1 = new WPI_VictorSPX(6);
       conveyorMotorCIM2 = new WPI_VictorSPX(7);
-      conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
+     // conveyorMotorGroup = new SpeedControllerGroup(conveyorMotorCIM1,conveyorMotorCIM2);
 
 //Set up climb motor controllers
       climbMotorCIM1 = new WPI_TalonSRX(10);
@@ -169,10 +173,17 @@ public class Robot extends TimedRobot {
       rightMotorControllerCIM1.setSelectedSensorPosition(0);
 
 //Set up the Pigeon
-      
+      pigeonIMU = new PigeonIMU(leftMotorControllerCIM1);
       pigeonIMUData = new double[3];
       pigeonIMU.setFusedHeading(70);
-      
+    
+//Set up the Pixy
+/*
+    pixy = Pixy2.createInstance(new SPILink()); // Creates a new Pixy2 camera using SPILink
+		pixy.init(); // Initializes the camera and prepares to send/receive data
+		pixy.setLamp((byte) 1, (byte) 1); // Turns the LEDs on
+		pixy.setLED(200, 30, 255); // Sets the RGB LED to purple
+   */   
   }
 
   @Override
@@ -218,30 +229,48 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("leftEncoder",leftEncoderReading);
     SmartDashboard.putNumber("rightEncoder",rightEncoderReading);
     //Nam - your code goes in the next line. Talk to Leo if you need help.
-
+    SmartDashboard.putNumber("Robot Heading",robotHeading);
 //**********CONVEYOR CONTROL**********//
 
 //left button is full intake, bottom button is full stop, right button is full dump
 //If button X is pressed on the operator control...
     if(gamepadOperator.getXButton()){
       //Set the conveyor to full forward
-      conveyorMotorGroup.set(0.75);
+      conveyorMotorCIM1.set(0.75);
     }
     else
     //if button B is pressed
     if(gamepadOperator.getBButton()){
       //Set the conveyor to full backward
 
-      conveyorMotorGroup.set(-0.75);
+      conveyorMotorCIM1.set(-0.75);
 
     }
     else{
-      conveyorMotorGroup.set(0.0);
+      conveyorMotorCIM1.set(0.0);
       
 
     }
 
+//left button is full intake, bottom button is full stop, right button is full dump
+//If button X is pressed on the operator control...
+if(gamepadOperator.getPOV() == 180){
+  //Set the conveyor to dump
+  conveyorMotorCIM2.set(0.5);
+}
+else
+//if button B is pressed
+if(gamepadOperator.getPOV() == 0){
+  //Set the conveyor to full backward
 
+  conveyorMotorCIM2.set(-0.2);
+
+}
+else{
+  conveyorMotorCIM2.set(0.0);
+  
+
+}
 
 //**********COLOR WHEEL ROTATION CONTROL**********//
 //If top right bumper button is pressed, turn the color wheel drive motor
@@ -414,7 +443,7 @@ if(climbMotorEnabled){
   rightEncoderReading = rightMotorControllerCIM1.getSelectedSensorPosition();
   pigeonIMU.getYawPitchRoll(pigeonIMUData);
 
-  robotHeading = pigeonIMUData[0];  
+  robotHeading = pigeonIMU.getFusedHeading();  
 
 } //End of robotPeriodicTeleop
 
