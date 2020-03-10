@@ -493,6 +493,7 @@ private string color90Degrees(string colorOfficial) {
 		return "Red"
 	}
 }
+}
 
 
 //on first gamepad:
