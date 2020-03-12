@@ -479,6 +479,20 @@ if(climbMotorEnabled){
       return -number;
     }
   }
+private string color90Degrees(string colorOfficial) {
+	if (colorOfficial == "R") {
+		return "Blue"
+	}
+	else if (colorOfficial == "G") {
+		return "Yellow"
+	}
+	else if (colorOfficial == "Y") {
+		return "Green"
+	}
+	else {
+		return "Red"
+	}
+}
 }
 
 
