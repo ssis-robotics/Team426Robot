@@ -216,6 +216,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("colorWheelArmLowerLimit", colorWheelArmUpperLimit.get());
     SmartDashboard.putString("colorWheelPosition", colorWheelPosition);
     SmartDashboard.putBoolean("stageTwoComplete", stageTwoComplete);
+    SmartDashboard.putString("colorWheelTargetColor", colorWheelTargetColor);
 
     //Show color sensor information
     SmartDashboard.putNumber("Red",detectedColor.red);
