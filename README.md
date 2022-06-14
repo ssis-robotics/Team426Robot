@@ -1,7 +1,13 @@
 # Team426Robot
-Code base for ZACTF 2020
+
+<img src="docs/zombie.jpg" width="100" align="right" style="float:left;">
+
+Code base for ZACTF 2020.
+
+Which of course stands for **Zombie Attack Counter Task Force**. You never know! Better to be prepared 😊.
 
 ## Season 2019-2020 Infinite Recharge
+
 
 <img src="logo2020.png" width="150" align="right" style="float:left;">
 
